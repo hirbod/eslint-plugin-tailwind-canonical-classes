@@ -31,7 +31,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes.git"
+    "url": "https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes.git"
   },
   "bugs": {
     "url": "https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/issues"
