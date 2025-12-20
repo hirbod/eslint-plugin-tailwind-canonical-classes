@@ -28,6 +28,7 @@
 - 🔧 **Auto-fix Support**: Automatically fixes non-canonical classes using ESLint's auto-fix feature
 - 🎯 **Tailwind CSS v4 Integration**: Uses Tailwind CSS v4's official `canonicalizeCandidates` API
 - 📝 **Multiple Format Support**: Works with string literals, template literals, and JSX expressions
+- 🛠️ **Utility Function Support**: Detects and fixes classes in utility functions like `cn()`, `clsx()`, `classNames()`, `twMerge()`, and `cva()`
 - ⚡ **Zero Config**: Minimal configuration required to get started
 
 ## 📦 Installation
@@ -122,6 +123,7 @@ export default [
         {
           cssPath: './app/styles/globals.css', // Required
           rootFontSize: 16, // Optional, default: 16
+          calleeFunctions: ['cn', 'clsx'], // Optional, default: ['cn', 'clsx', 'classNames', 'twMerge', 'cva']
         },
       ],
     },
@@ -140,6 +142,7 @@ module.exports = {
       {
         cssPath: './app/styles/globals.css',
         rootFontSize: 16,
+        calleeFunctions: ['cn', 'clsx'],
       },
     ],
   },
@@ -173,6 +176,18 @@ cssPath: '/absolute/path/to/styles.css'    // Absolute path
 ```javascript
 rootFontSize: 16  // Default (16px = 1rem)
 rootFontSize: 14  // If your root font size is 14px
+```
+
+### `calleeFunctions` (optional)
+
+- **Type**: `string[]`
+- **Default**: `['cn', 'clsx', 'classNames', 'twMerge', 'cva']`
+- **Description**: Array of utility function names to check for Tailwind classes. The plugin will detect and canonicalize classes passed as string arguments to these functions.
+
+**Example**:
+```javascript
+calleeFunctions: ['cn', 'clsx']  // Only check cn() and clsx()
+calleeFunctions: ['customFn']    // Check a custom utility function
 ```
 
 ## 💡 Usage Examples
@@ -209,6 +224,13 @@ The plugin supports various class name formats:
    <div className={"p-4px"}>Content</div>
    ```
 
+4. **Utility functions** (e.g., `cn()`, `clsx()`, `classNames()`, `twMerge()`, `cva()`):
+   ```tsx
+   <div className={cn("p-4px", "m-2rem")}>Content</div>
+   <div className={clsx("w-[16px]", condition && "hidden")}>Content</div>
+   // Only string literal arguments are checked; dynamic expressions are skipped
+   ```
+
 ### Real-world Example
 
 ```tsx
@@ -231,10 +253,38 @@ function Card({ children }) {
 }
 ```
 
+### Utility Function Example
+
+```tsx
+// Before
+import { cn } from '@/lib/utils';
+
+function Button({ variant, className }) {
+  return (
+    <button className={cn("w-[16px]", "h-[32px]", className)}>
+      Click me
+    </button>
+  );
+}
+
+// After auto-fix
+import { cn } from '@/lib/utils';
+
+function Button({ variant, className }) {
+  return (
+    <button className={cn("w-4", "h-8", className)}>
+      Click me
+    </button>
+  );
+}
+```
+
 ## 🔧 How It Works
 
-1. **Load Design System**: The plugin loads your Tailwind CSS file using `@tailwindcss/node`'s `__unstable__loadDesignSystem` API
-2. **Extract Classes**: It extracts class names from JSX `className` attributes in your code
+1. **Load Design System**: The plugin loads your Tailwind CSS file using `@tailwindcss/node`'s worker API
+2. **Extract Classes**: It extracts class names from:
+   - JSX `className` attributes (string literals, template literals, JSX expressions)
+   - Utility function calls (e.g., `cn()`, `clsx()`) - only string literal arguments are checked
 3. **Canonicalize**: For each class, it uses Tailwind's `canonicalizeCandidates` to find the canonical form
 4. **Report & Fix**: If a non-canonical class is found, it reports an error/warning and can auto-fix it
 
@@ -244,6 +294,7 @@ function Card({ children }) {
 - **Tailwind CSS v4 required**: Requires Tailwind CSS v4 (not compatible with v3)
 - **CSS file accessibility**: CSS file must be accessible from the ESLint process
 - **Template literals**: Template literals with expressions are partially supported (only static parts are checked)
+- **Utility functions**: Only string literal arguments are checked; dynamic expressions, variables, and conditional logic within utility functions are skipped
 
 ## 🐛 Troubleshooting
 

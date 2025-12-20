@@ -75,6 +75,38 @@ describe('tailwind-canonical-classes', () => {
         code: '<div className={`w-4 ${someVar}`}>Content</div>',
         options: [{ cssPath }],
       },
+      {
+        code: '<div className={cn("w-4", "h-8")}>Content</div>',
+        options: [{ cssPath }],
+      },
+      {
+        code: '<div className={clsx("bg-white", "text-black")}>Content</div>',
+        options: [{ cssPath }],
+      },
+      {
+        code: '<div className={classNames("w-4", "h-8")}>Content</div>',
+        options: [{ cssPath }],
+      },
+      {
+        code: '<div className={cn("w-4", condition && "hidden")}>Content</div>',
+        options: [{ cssPath }],
+      },
+      {
+        code: '<div className={cn("w-4", someVar)}>Content</div>',
+        options: [{ cssPath }],
+      },
+      {
+        code: '<div className={cn("w-4", "h-8", condition && "hidden")}>Content</div>',
+        options: [{ cssPath }],
+      },
+      {
+        code: '<div className={customFn("w-4", "h-8")}>Content</div>',
+        options: [{ cssPath, calleeFunctions: ['customFn'] }],
+      },
+      {
+        code: '<div className={unknownFn("w-[16px]")}>Content</div>',
+        options: [{ cssPath }],
+      },
     ],
 
     invalid: [
@@ -189,6 +221,167 @@ describe('tailwind-canonical-classes', () => {
             messageId: 'cssNotFound',
             data: {
               path: '/non/existent/path.css',
+            },
+          },
+        ],
+      },
+      {
+        code: '<div className={cn("w-[16px]")}>Content</div>',
+        output: '<div className={cn("w-4")}>Content</div>',
+        options: [{ cssPath }],
+        errors: [
+          {
+            messageId: 'nonCanonical',
+            data: {
+              original: 'w-[16px]',
+              canonical: 'w-4',
+            },
+          },
+        ],
+      },
+      {
+        code: '<div className={clsx("w-[16px]")}>Content</div>',
+        output: '<div className={clsx("w-4")}>Content</div>',
+        options: [{ cssPath }],
+        errors: [
+          {
+            messageId: 'nonCanonical',
+            data: {
+              original: 'w-[16px]',
+              canonical: 'w-4',
+            },
+          },
+        ],
+      },
+      {
+        code: '<div className={classNames("w-[16px]")}>Content</div>',
+        output: '<div className={classNames("w-4")}>Content</div>',
+        options: [{ cssPath }],
+        errors: [
+          {
+            messageId: 'nonCanonical',
+            data: {
+              original: 'w-[16px]',
+              canonical: 'w-4',
+            },
+          },
+        ],
+      },
+      {
+        code: '<div className={cn("w-[16px]", "h-[32px]")}>Content</div>',
+        output: '<div className={cn("w-4", "h-8")}>Content</div>',
+        options: [{ cssPath }],
+        errors: [
+          {
+            messageId: 'nonCanonical',
+            data: {
+              original: 'w-[16px]',
+              canonical: 'w-4',
+            },
+          },
+          {
+            messageId: 'nonCanonical',
+            data: {
+              original: 'h-[32px]',
+              canonical: 'h-8',
+            },
+          },
+        ],
+      },
+      {
+        code: '<div className={cn("w-[16px] h-[32px]", "bg-white")}>Content</div>',
+        output: '<div className={cn("w-4 h-8", "bg-white")}>Content</div>',
+        options: [{ cssPath }],
+        errors: [
+          {
+            messageId: 'nonCanonical',
+            data: {
+              original: 'w-[16px]',
+              canonical: 'w-4',
+            },
+          },
+          {
+            messageId: 'nonCanonical',
+            data: {
+              original: 'h-[32px]',
+              canonical: 'h-8',
+            },
+          },
+        ],
+      },
+      {
+        code: '<div className={cn("w-[16px]", condition && "hidden")}>Content</div>',
+        output: '<div className={cn("w-4", condition && "hidden")}>Content</div>',
+        options: [{ cssPath }],
+        errors: [
+          {
+            messageId: 'nonCanonical',
+            data: {
+              original: 'w-[16px]',
+              canonical: 'w-4',
+            },
+          },
+        ],
+      },
+      {
+        code: '<div className={cn("w-[16px]", "h-[32px]", condition && "hidden", "bg-white")}>Content</div>',
+        output: '<div className={cn("w-4", "h-8", condition && "hidden", "bg-white")}>Content</div>',
+        options: [{ cssPath }],
+        errors: [
+          {
+            messageId: 'nonCanonical',
+            data: {
+              original: 'w-[16px]',
+              canonical: 'w-4',
+            },
+          },
+          {
+            messageId: 'nonCanonical',
+            data: {
+              original: 'h-[32px]',
+              canonical: 'h-8',
+            },
+          },
+        ],
+      },
+      {
+        code: "<div className={cn('w-[16px]')}>Content</div>",
+        output: "<div className={cn('w-4')}>Content</div>",
+        options: [{ cssPath }],
+        errors: [
+          {
+            messageId: 'nonCanonical',
+            data: {
+              original: 'w-[16px]',
+              canonical: 'w-4',
+            },
+          },
+        ],
+      },
+      {
+        code: '<div className={customFn("w-[16px]")}>Content</div>',
+        output: '<div className={customFn("w-4")}>Content</div>',
+        options: [{ cssPath, calleeFunctions: ['customFn'] }],
+        errors: [
+          {
+            messageId: 'nonCanonical',
+            data: {
+              original: 'w-[16px]',
+              canonical: 'w-4',
+            },
+          },
+        ],
+      },
+      {
+        code: '<div className={cn("w-[20px]")}>Content</div>',
+        output: '<div className={cn("w-5")}>Content</div>',
+        options: [{ cssPath, rootFontSize: 20 }],
+        errors: [
+          {
+            messageId: 'nonCanonical',
+            data: {
+              original: 'w-[20px]',
+              canonical: 'w-5',
             },
           },
         ],
