@@ -125,6 +125,47 @@ The plugin supports:
 - CSS file must be accessible from the ESLint process
 - Template literals with expressions are skipped
 
+## Release Process
+
+This project uses [semantic-release](https://github.com/semantic-release/semantic-release) for automated version management and npm publishing. Releases are automatically triggered when commits are pushed to the `main` branch.
+
+### How It Works
+
+1. **Automatic Versioning**: Version numbers are automatically determined based on commit messages using [Conventional Commits](https://www.conventionalcommits.org/)
+2. **Changelog Generation**: A `CHANGELOG.md` file is automatically generated and updated
+3. **npm Publishing**: New versions are automatically published to npm
+4. **GitHub Releases**: GitHub releases are automatically created with release notes
+
+### Commit Message Format
+
+To trigger a release, use conventional commit messages:
+
+- **Patch release** (1.0.8 → 1.0.9): `fix: description` or `fix(scope): description`
+- **Minor release** (1.0.8 → 1.1.0): `feat: description` or `feat(scope): description`
+- **Major release** (1.0.8 → 2.0.0): `feat!: description` or `fix!: description` or include `BREAKING CHANGE:` in the commit body
+
+Examples:
+```
+fix: resolve issue with template literals
+feat: add support for dynamic class names
+feat!: change API structure
+
+BREAKING CHANGE: The cssPath option is now required
+```
+
+### Setup Requirements
+
+For maintainers, the following setup is required:
+
+1. **npm Access Token**: Create an npm access token with publish permissions at [npmjs.com](https://www.npmjs.com/settings/YOUR_USERNAME/tokens)
+2. **GitHub Secret**: Add the npm token as a secret named `NPM_TOKEN` in your GitHub repository settings:
+   - Go to Settings → Secrets and variables → Actions
+   - Click "New repository secret"
+   - Name: `NPM_TOKEN`
+   - Value: Your npm access token
+
+Once set up, simply push commits with conventional commit messages to the `main` branch, and releases will happen automatically!
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
