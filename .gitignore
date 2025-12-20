@@ -10,3 +10,9 @@ yarn-error.log*
 *.swo
 *~
 .env
+
+# Compiled output
+lib/
+
+# Manual testing environment
+test-env/

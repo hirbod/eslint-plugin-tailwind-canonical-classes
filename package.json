@@ -3,21 +3,19 @@
   "version": "1.0.8",
   "description": "ESLint plugin to enforce canonical Tailwind CSS class names using Tailwind CSS v4's canonicalization API",
   "type": "module",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "exports": {
     ".": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
     },
     "./rule": {
-      "types": "./lib/tailwind-canonical-classes.d.ts",
-      "default": "./lib/tailwind-canonical-classes.js"
+      "types": "./lib/rules/tailwind-canonical-classes.d.ts",
+      "default": "./lib/rules/tailwind-canonical-classes.js"
     }
   },
   "files": [
-    "index.js",
-    "index.d.ts",
     "lib"
   ],
   "keywords": [
@@ -43,15 +41,19 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "test": "vitest",
-    "test:run": "vitest run",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "test": "npm run build && vitest",
+    "test:run": "npm run build && vitest run",
+    "prepublishOnly": "npm run build",
     "release": "semantic-release"
   },
   "peerDependencies": {
     "eslint": ">=8.0.0"
   },
   "dependencies": {
-    "@tailwindcss/node": "^4.0.0"
+    "@tailwindcss/node": "^4.0.0",
+    "synckit": "^0.9.3"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.28.5",
@@ -60,8 +62,10 @@
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^9.2.6",
     "@semantic-release/npm": "^12.0.1",
+    "@types/node": "^20.0.0",
     "eslint": "^9.0.0",
     "semantic-release": "^24.0.0",
+    "typescript": "^5.0.0",
     "vitest": "^4.0.16"
   },
   "release": {

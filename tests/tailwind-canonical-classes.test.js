@@ -2,37 +2,32 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RuleTester } from 'eslint';
 import { getTestCssPath, mockCanonicalizations } from './test-utils.js';
 
-const mockDesignSystem = vi.hoisted(() => ({
-  canonicalizeCandidates: vi.fn((candidates, options = {}) => {
+// Mock the synckit createSyncFn to return a synchronous function that mimics the worker
+const mockCanonicalizeSync = vi.hoisted(() => {
+  return vi.fn((cssContent, basePath, candidates, options = {}) => {
+    // Simulate the worker's canonicalization logic
     return candidates.map((candidate) => {
       if (mockCanonicalizations[candidate]) {
         return mockCanonicalizations[candidate];
       }
       return candidate;
     });
-  }),
-}));
-
-const mockLoadDesignSystem = vi.hoisted(() => {
-  const fn = vi.fn();
-  fn.mockResolvedValue(mockDesignSystem);
-  return fn;
+  });
 });
 
-vi.mock('@tailwindcss/node', () => ({
-  __unstable__loadDesignSystem: (...args) => mockLoadDesignSystem(...args),
+vi.mock('synckit', () => ({
+  createSyncFn: vi.fn(() => mockCanonicalizeSync),
+  runAsWorker: vi.fn(),
 }));
 
-import tailwindCanonicalClasses, { __setDesignSystemCacheForTesting } from '../lib/tailwind-canonical-classes.js';
+import tailwindCanonicalClasses from '../lib/rules/tailwind-canonical-classes.js';
 
 describe('tailwind-canonical-classes', () => {
   const cssPath = getTestCssPath();
 
   beforeEach(() => {
-    mockLoadDesignSystem.mockReset();
-    mockLoadDesignSystem.mockResolvedValue(mockDesignSystem);
-    mockDesignSystem.canonicalizeCandidates.mockClear();
-    mockDesignSystem.canonicalizeCandidates.mockImplementation((candidates, options = {}) => {
+    mockCanonicalizeSync.mockClear();
+    mockCanonicalizeSync.mockImplementation((cssContent, basePath, candidates, options = {}) => {
       return candidates.map((candidate) => {
         if (mockCanonicalizations[candidate]) {
           return mockCanonicalizations[candidate];
@@ -40,7 +35,6 @@ describe('tailwind-canonical-classes', () => {
         return candidate;
       });
     });
-    __setDesignSystemCacheForTesting(mockDesignSystem, cssPath);
   });
 
   const ruleTester = new RuleTester({

@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { __unstable__loadDesignSystem } from '@tailwindcss/node';
 import { getTestCssPath } from './test-utils.js';
-import tailwindCanonicalClasses, { __setDesignSystemCacheForTesting } from '../lib/tailwind-canonical-classes.js';
+import tailwindCanonicalClasses, { __setDesignSystemCacheForTesting } from '../lib/rules/tailwind-canonical-classes.js';
 
 describe('tailwind-canonical-classes (Integration)', () => {
   const cssPath = getTestCssPath();

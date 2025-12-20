@@ -1,4 +1,4 @@
-import tailwindCanonicalClasses from './lib/tailwind-canonical-classes.js';
+import tailwindCanonicalClasses from './rules/tailwind-canonical-classes.js';
 
 export default {
   rules: {

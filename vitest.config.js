@@ -7,5 +7,8 @@ export default defineConfig({
     include: ['tests/**/*.test.js'],
     timeout: 10000,
   },
+  esbuild: {
+    target: 'node18',
+  },
 });
 
