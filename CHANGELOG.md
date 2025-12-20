@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/compare/v1.0.10...v1.1.0) (2025-12-20)
+
+
+### Features
+
+* add dynamic expression and add tests to ci ([9272f75](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/commit/9272f75e5e1a11395ca3117b6be8fee721230728))
+
 ## [1.0.10](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/compare/v1.0.9...v1.0.10) (2025-12-20)
 
 
