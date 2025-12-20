@@ -33,7 +33,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes.git"
+    "url": "git@github.com:MaisonnatM/eslint-plugin-tailwind-canonical-classes.git"
   },
   "bugs": {
     "url": "https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/issues"
@@ -43,6 +43,8 @@
     "node": ">=18.0.0"
   },
   "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run",
     "release": "semantic-release"
   },
   "peerDependencies": {
@@ -52,12 +54,15 @@
     "@tailwindcss/node": "^4.0.0"
   },
   "devDependencies": {
-    "eslint": "^9.0.0",
-    "semantic-release": "^24.0.0",
+    "@babel/eslint-parser": "^7.28.5",
+    "@babel/preset-react": "^7.28.5",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^9.2.6",
-    "@semantic-release/npm": "^12.0.1"
+    "@semantic-release/npm": "^12.0.1",
+    "eslint": "^9.0.0",
+    "semantic-release": "^24.0.0",
+    "vitest": "^4.0.16"
   },
   "release": {
     "branches": [
