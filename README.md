@@ -1,31 +1,110 @@
 # eslint-plugin-tailwind-canonical-classes
 
-ESLint plugin to enforce canonical Tailwind CSS class names using Tailwind CSS v4's canonicalization API.
+[![npm version](https://img.shields.io/npm/v/eslint-plugin-tailwind-canonical-classes.svg)](https://www.npmjs.com/package/eslint-plugin-tailwind-canonical-classes)
+[![npm downloads](https://img.shields.io/npm/dm/eslint-plugin-tailwind-canonical-classes.svg)](https://www.npmjs.com/package/eslint-plugin-tailwind-canonical-classes)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 
-## Overview
+> ESLint plugin to enforce canonical Tailwind CSS class names using Tailwind CSS v4's canonicalization API.
 
-This plugin helps maintain consistent Tailwind CSS class names across your codebase by automatically detecting and fixing non-canonical class names. It uses Tailwind CSS v4's `canonicalizeCandidates` API to ensure your classes follow the canonical format.
+## 📋 Table of Contents
 
-For example, it can convert:
-- `p-4px` → `p-1` (if 4px equals 1rem at your root font size)
-- `m-2rem` → `m-8` (if 2rem equals 8 at your scale)
+- [Features](#-features)
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Configuration](#-configuration)
+- [Options](#-options)
+- [Usage Examples](#-usage-examples)
+- [How It Works](#-how-it-works)
+- [Limitations](#-limitations)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+- [License](#-license)
+- [Related Links](#-related-links)
 
-## Installation
+## ✨ Features
+
+- 🔍 **Automatic Detection**: Automatically detects non-canonical Tailwind CSS class names in your JSX/TSX files
+- 🔧 **Auto-fix Support**: Automatically fixes non-canonical classes using ESLint's auto-fix feature
+- 🎯 **Tailwind CSS v4 Integration**: Uses Tailwind CSS v4's official `canonicalizeCandidates` API
+- 📝 **Multiple Format Support**: Works with string literals, template literals, and JSX expressions
+- ⚡ **Zero Config**: Minimal configuration required to get started
+
+## 📦 Installation
+
+Install the plugin and its peer dependency:
 
 ```bash
 npm install --save-dev eslint-plugin-tailwind-canonical-classes @tailwindcss/node
 ```
 
-## Requirements
+Or with yarn:
 
-- Node.js >= 18.0.0
-- ESLint >= 8.0.0
-- Tailwind CSS v4
-- `@tailwindcss/node` package
+```bash
+yarn add -D eslint-plugin-tailwind-canonical-classes @tailwindcss/node
+```
 
-## Configuration
+Or with pnpm:
 
-Add the plugin to your ESLint configuration file (e.g., `eslint.config.mjs` or `.eslintrc.js`):
+```bash
+pnpm add -D eslint-plugin-tailwind-canonical-classes @tailwindcss/node
+```
+
+### Requirements
+
+- **Node.js** >= 18.0.0
+- **ESLint** >= 8.0.0
+- **Tailwind CSS** v4
+- **@tailwindcss/node** package
+
+## 🚀 Quick Start
+
+1. **Install the plugin** (see [Installation](#-installation))
+
+2. **Add to your ESLint config**:
+
+   **Flat Config (ESLint 9+)** - `eslint.config.mjs`:
+   ```javascript
+   import tailwindCanonicalClasses from 'eslint-plugin-tailwind-canonical-classes';
+
+   export default [
+     {
+       plugins: {
+         'tailwind-canonical-classes': tailwindCanonicalClasses,
+       },
+       rules: {
+         'tailwind-canonical-classes/tailwind-canonical-classes': [
+           'warn',
+           {
+             cssPath: './app/styles/globals.css',
+           },
+         ],
+       },
+     },
+   ];
+   ```
+
+   **Legacy Config** - `.eslintrc.js`:
+   ```javascript
+   module.exports = {
+     plugins: ['tailwind-canonical-classes'],
+     rules: {
+       'tailwind-canonical-classes/tailwind-canonical-classes': [
+         'warn',
+         {
+           cssPath: './app/styles/globals.css',
+         },
+       ],
+     },
+   };
+   ```
+
+3. **Run ESLint**:
+   ```bash
+   npx eslint . --fix
+   ```
+
+## ⚙️ Configuration
 
 ### Flat Config (ESLint 9+)
 
@@ -39,10 +118,10 @@ export default [
     },
     rules: {
       'tailwind-canonical-classes/tailwind-canonical-classes': [
-        'warn',
+        'warn', // or 'error'
         {
-          cssPath: './app/styles/globals.css', // Path to your Tailwind CSS file
-          rootFontSize: 16, // Optional: root font size in pixels (default: 16)
+          cssPath: './app/styles/globals.css', // Required
+          rootFontSize: 16, // Optional, default: 16
         },
       ],
     },
@@ -67,34 +146,38 @@ module.exports = {
 };
 ```
 
-## Options
+## 📖 Options
 
 ### `cssPath` (required)
 
-Type: `string`
+- **Type**: `string`
+- **Description**: Path to your Tailwind CSS file
+- **Supported formats**:
+  - Relative path: Resolved relative to your project root (where ESLint config is located)
+  - Absolute path: Full filesystem path to your CSS file
 
-Path to your Tailwind CSS file. Can be:
-- **Relative path**: Resolved relative to your project root (where ESLint config is located)
-- **Absolute path**: Full filesystem path to your CSS file
-
-Example:
+**Examples**:
 ```javascript
-cssPath: './app/styles/globals.css'  // Relative to project root
-cssPath: '/absolute/path/to/styles.css'  // Absolute path
+cssPath: './app/styles/globals.css'        // Relative to project root
+cssPath: './src/index.css'                // Another relative example
+cssPath: '/absolute/path/to/styles.css'    // Absolute path
 ```
 
 ### `rootFontSize` (optional)
 
-Type: `number`  
-Default: `16`
+- **Type**: `number`
+- **Default**: `16`
+- **Description**: Root font size in pixels for rem calculations. This should match your CSS root font size setting.
 
-Root font size in pixels for rem calculations. This should match your CSS root font size setting.
+**Example**:
+```javascript
+rootFontSize: 16  // Default (16px = 1rem)
+rootFontSize: 14  // If your root font size is 14px
+```
 
-## Usage
+## 💡 Usage Examples
 
-Once configured, ESLint will automatically check your JSX `className` attributes and suggest canonical alternatives.
-
-### Example
+### Basic Example
 
 **Before:**
 ```tsx
@@ -106,76 +189,137 @@ Once configured, ESLint will automatically check your JSX `className` attributes
 <div className="p-1 m-8">Content</div>
 ```
 
-The plugin supports:
-- String literals: `className="p-4"`
-- Template literals (without expressions): `className={`p-4 ${someVar}`}` (only static parts are checked)
-- JSX expression containers with static values
+### Supported Formats
 
-## How It Works
+The plugin supports various class name formats:
 
-1. The plugin loads your Tailwind CSS file using `@tailwindcss/node`'s `__unstable__loadDesignSystem` API
-2. It extracts class names from JSX `className` attributes
-3. For each class, it uses Tailwind's `canonicalizeCandidates` to find the canonical form
-4. If a non-canonical class is found, it reports an error/warning and can auto-fix it
+1. **String literals**:
+   ```tsx
+   <div className="p-4 m-2">Content</div>
+   ```
 
-## Limitations
+2. **Template literals** (static parts only):
+   ```tsx
+   <div className={`p-4 ${someVar}`}>Content</div>
+   // Only "p-4" will be checked, dynamic parts are skipped
+   ```
 
-- Only works with static class names (no dynamic expressions)
-- Requires Tailwind CSS v4
-- CSS file must be accessible from the ESLint process
-- Template literals with expressions are skipped
+3. **JSX expression containers**:
+   ```tsx
+   <div className={"p-4px"}>Content</div>
+   ```
 
-## Release Process
+### Real-world Example
 
-This project uses [semantic-release](https://github.com/semantic-release/semantic-release) for automated version management and npm publishing. Releases are automatically triggered when commits are pushed to the `main` branch.
+```tsx
+// Before
+function Card({ children }) {
+  return (
+    <div className="p-16px m-2rem rounded-8px shadow-lg">
+      {children}
+    </div>
+  );
+}
 
-### How It Works
-
-1. **Automatic Versioning**: Version numbers are automatically determined based on commit messages using [Conventional Commits](https://www.conventionalcommits.org/)
-2. **Changelog Generation**: A `CHANGELOG.md` file is automatically generated and updated
-3. **npm Publishing**: New versions are automatically published to npm
-4. **GitHub Releases**: GitHub releases are automatically created with release notes
-
-### Commit Message Format
-
-To trigger a release, use conventional commit messages:
-
-- **Patch release** (1.0.8 → 1.0.9): `fix: description` or `fix(scope): description`
-- **Minor release** (1.0.8 → 1.1.0): `feat: description` or `feat(scope): description`
-- **Major release** (1.0.8 → 2.0.0): `feat!: description` or `fix!: description` or include `BREAKING CHANGE:` in the commit body
-
-Examples:
-```
-fix: resolve issue with template literals
-feat: add support for dynamic class names
-feat!: change API structure
-
-BREAKING CHANGE: The cssPath option is now required
+// After auto-fix
+function Card({ children }) {
+  return (
+    <div className="p-4 m-8 rounded-2 shadow-lg">
+      {children}
+    </div>
+  );
+}
 ```
 
-### Setup Requirements
+## 🔧 How It Works
 
-For maintainers, the following setup is required:
+1. **Load Design System**: The plugin loads your Tailwind CSS file using `@tailwindcss/node`'s `__unstable__loadDesignSystem` API
+2. **Extract Classes**: It extracts class names from JSX `className` attributes in your code
+3. **Canonicalize**: For each class, it uses Tailwind's `canonicalizeCandidates` to find the canonical form
+4. **Report & Fix**: If a non-canonical class is found, it reports an error/warning and can auto-fix it
 
-1. **npm Access Token**: Create an npm access token with publish permissions at [npmjs.com](https://www.npmjs.com/settings/YOUR_USERNAME/tokens)
-2. **GitHub Secret**: Add the npm token as a secret named `NPM_TOKEN` in your GitHub repository settings:
-   - Go to Settings → Secrets and variables → Actions
-   - Click "New repository secret"
-   - Name: `NPM_TOKEN`
-   - Value: Your npm access token
+## ⚠️ Limitations
 
-Once set up, simply push commits with conventional commit messages to the `main` branch, and releases will happen automatically!
+- **Static classes only**: Only works with static class names (no dynamic expressions)
+- **Tailwind CSS v4 required**: Requires Tailwind CSS v4 (not compatible with v3)
+- **CSS file accessibility**: CSS file must be accessible from the ESLint process
+- **Template literals**: Template literals with expressions are partially supported (only static parts are checked)
 
-## Contributing
+## 🐛 Troubleshooting
+
+### Plugin not detecting classes
+
+**Problem**: The plugin isn't reporting any issues with non-canonical classes.
+
+**Solutions**:
+1. Verify your `cssPath` is correct and points to a valid Tailwind CSS file
+2. Ensure the CSS file is accessible from where ESLint runs
+3. Check that your Tailwind CSS file contains valid Tailwind directives (`@import "tailwindcss"` or similar)
+4. Verify ESLint is processing your JSX/TSX files (check your ESLint config includes these file types)
+
+### Path resolution issues
+
+**Problem**: ESLint can't find your CSS file.
+
+**Solutions**:
+- Use an absolute path if relative paths aren't working
+- Ensure the path is relative to your ESLint config file location
+- Check file permissions
+
+### Auto-fix not working
+
+**Problem**: ESLint reports issues but doesn't auto-fix them.
+
+**Solutions**:
+- Run ESLint with the `--fix` flag: `npx eslint . --fix`
+- Ensure your editor's ESLint extension has auto-fix enabled
+- Check that the rule severity is set to `'warn'` or `'error'` (not `'off'`)
+
+## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## License
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-MIT
+### Development Setup
 
-## Related
+```bash
+# Clone the repository
+git clone https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes.git
+cd eslint-plugin-tailwind-canonical-classes
 
-- [Tailwind CSS v4](https://tailwindcss.com/)
-- [ESLint](https://eslint.org/)
+# Install dependencies
+npm install
+
+# Build the project
+npm run build
+
+# Run tests
+npm test
+```
+
+### Release Process
+
+This project uses [semantic-release](https://github.com/semantic-release/semantic-release) for automated version management and npm publishing. Releases are automatically triggered when commits are pushed to the `main` branch.
+
+**Commit Message Format**:
+- `fix:` - Patch release (1.0.8 → 1.0.9)
+- `feat:` - Minor release (1.0.8 → 1.1.0)
+- `feat!:` or `BREAKING CHANGE:` - Major release (1.0.8 → 2.0.0)
+
+## 📄 License
+
+MIT © [Maisonnat Maxence](https://github.com/MaisonnatM)
+
+## 🔗 Related Links
+
+- [Tailwind CSS v4 Documentation](https://tailwindcss.com/)
+- [ESLint Documentation](https://eslint.org/)
+- [npm Package](https://www.npmjs.com/package/eslint-plugin-tailwind-canonical-classes)
+- [GitHub Repository](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes)
+- [Report an Issue](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/issues)
 
