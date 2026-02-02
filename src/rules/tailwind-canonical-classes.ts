@@ -84,6 +84,33 @@ function getCalleeName(node: any): string | null {
   return null;
 }
 
+interface CollectedLiteral {
+  value: string;
+  node: any;
+  classes: string[];
+}
+
+function collectStringLiterals(node: any, result: CollectedLiteral[]): void {
+  if (node.type === 'Literal' && typeof node.value === 'string') {
+    const classes = splitClasses(node.value);
+    if (classes.length > 0) {
+      result.push({ value: node.value, node, classes });
+    }
+  } else if (node.type === 'ConditionalExpression') {
+    collectStringLiterals(node.consequent, result);
+    collectStringLiterals(node.alternate, result);
+  } else if (node.type === 'LogicalExpression') {
+    collectStringLiterals(node.left, result);
+    collectStringLiterals(node.right, result);
+  } else if (node.type === 'TemplateLiteral' && !hasTemplateExpressions(node)) {
+    const value = node.quasis.map((q: any) => q.value.cooked).join('');
+    const classes = splitClasses(value);
+    if (classes.length > 0) {
+      result.push({ value, node, classes });
+    }
+  }
+}
+
 interface StringArg {
   value: string;
   index: number;
@@ -107,17 +134,16 @@ function extractStringArgsFromCallExpression(
   const args: StringArg[] = [];
 
   node.arguments.forEach((arg: any, index: number) => {
-    if (arg.type === 'Literal' && typeof arg.value === 'string') {
-      const classes = splitClasses(arg.value);
-      if (classes.length > 0) {
-        args.push({
-          value: arg.value,
-          index,
-          node: arg,
-          classes,
-        });
-      }
-    }
+    const literals: CollectedLiteral[] = [];
+    collectStringLiterals(arg, literals);
+    literals.forEach((lit) => {
+      args.push({
+        value: lit.value,
+        index,
+        node: lit.node,
+        classes: lit.classes,
+      });
+    });
   });
 
   return args.length > 0 ? { calleeName, args } : null;
@@ -327,100 +353,52 @@ const rule: Rule.RuleModule = {
           }
 
           const { args } = callExprData;
-          const allClasses: string[] = [];
-          const argClassMap: Map<number, { start: number; end: number }> = new Map();
-
-          args.forEach((arg) => {
-            const startIndex = allClasses.length;
-            allClasses.push(...arg.classes);
-            const endIndex = allClasses.length;
-            argClassMap.set(arg.index, { start: startIndex, end: endIndex });
-          });
-
-          if (allClasses.length === 0) {
-            return;
-          }
 
           try {
-            const canonicalized = canonicalizeClasses(cssPath, allClasses, rootFontSize);
-            
-            if (canonicalized === null) {
-              context.report({
-                node,
-                messageId: 'cssNotFound',
-                data: {
-                  path: cssPath,
-                },
-              });
-              return;
-            }
+            for (const arg of args) {
+              const canonicalized = canonicalizeClasses(cssPath, arg.classes, rootFontSize);
 
-            const errorsByArg: Map<
-              number,
-              Array<{
-                original: string;
-                canonical: string;
-                classIndex: number;
-              }>
-            > = new Map();
-
-            allClasses.forEach((className, classIndex) => {
-              const canonical = canonicalized[classIndex];
-              if (canonical && canonical !== className) {
-                for (const [argIndex, range] of argClassMap.entries()) {
-                  if (classIndex >= range.start && classIndex < range.end) {
-                    if (!errorsByArg.has(argIndex)) {
-                      errorsByArg.set(argIndex, []);
-                    }
-                    errorsByArg.get(argIndex)!.push({
-                      original: className,
-                      canonical,
-                      classIndex,
-                    });
-                    break;
-                  }
-                }
-              }
-            });
-
-            if (errorsByArg.size > 0) {
-              errorsByArg.forEach((errors, argIndex) => {
-                const arg = args.find((a) => a.index === argIndex);
-                if (!arg) return;
-
-                const argRange = argClassMap.get(argIndex)!;
-                const fixedClasses = [...arg.classes];
-                
-                errors.forEach((error) => {
-                  const localIndex = error.classIndex - argRange.start;
-                  fixedClasses[localIndex] = error.canonical;
+              if (canonicalized === null) {
+                context.report({
+                  node,
+                  messageId: 'cssNotFound',
+                  data: { path: cssPath },
                 });
+                return;
+              }
 
-                const fixedValue = joinClasses(fixedClasses);
-                const quoteChar = getQuoteChar(
-                  sourceText,
-                  arg.node.range[0],
-                  arg.node.range[1]
-                );
+              const errors: Array<{ original: string; canonical: string; idx: number }> = [];
+              arg.classes.forEach((className, idx) => {
+                const canonical = canonicalized[idx];
+                if (canonical && canonical !== className) {
+                  errors.push({ original: className, canonical, idx });
+                }
+              });
 
-                errors.forEach((error, errorIndex) => {
-                  context.report({
-                    node: arg.node,
-                    messageId: 'nonCanonical',
-                    data: {
-                      original: error.original,
-                      canonical: error.canonical,
-                    },
-                    fix:
-                      errorIndex === 0
-                        ? (fixer) => {
-                            return fixer.replaceTextRange(
-                              [arg.node.range[0], arg.node.range[1]],
-                              `${quoteChar}${fixedValue}${quoteChar}`
-                            );
-                          }
-                        : undefined,
-                  });
+              if (errors.length === 0) continue;
+
+              const fixedClasses = [...arg.classes];
+              errors.forEach((e) => { fixedClasses[e.idx] = e.canonical; });
+              const fixedValue = joinClasses(fixedClasses);
+              const quoteChar = getQuoteChar(sourceText, arg.node.range[0], arg.node.range[1]);
+
+              errors.forEach((error, errorIndex) => {
+                context.report({
+                  node: arg.node,
+                  messageId: 'nonCanonical',
+                  data: {
+                    original: error.original,
+                    canonical: error.canonical,
+                  },
+                  fix:
+                    errorIndex === 0
+                      ? (fixer) => {
+                          return fixer.replaceTextRange(
+                            [arg.node.range[0], arg.node.range[1]],
+                            `${quoteChar}${fixedValue}${quoteChar}`
+                          );
+                        }
+                      : undefined,
                 });
               });
             }
