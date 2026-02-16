@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/compare/v1.1.0...v1.2.0) (2026-02-16)
+
+
+### Features
+
+* support ternary and logical expressions in call expressions ([b82a26b](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/commit/b82a26b031de9f5ede478f9abddb5a34702e0309))
+
 # [1.1.0](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/compare/v1.0.10...v1.1.0) (2025-12-20)
 
 
