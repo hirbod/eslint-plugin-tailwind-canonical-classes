@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/compare/v1.2.0...v1.3.0) (2026-03-11)
+
+
+### Features
+
+* add ESLint v10 support with backward compatibility for v8/v9 ([#6](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/issues/6)) ([952e8fe](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/commit/952e8fe8a5eed436e809ad221e2e4387e62c88df))
+
 # [1.2.0](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/compare/v1.1.0...v1.2.0) (2026-02-16)
 
 
