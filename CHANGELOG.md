@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/compare/v1.3.0...v1.3.1) (2026-03-11)
+
+
+### Bug Fixes
+
+* make CI and tests compatible with ESLint 8/9/10 version matrix ([#7](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/issues/7)) ([ee8b4c6](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/commit/ee8b4c608f4ee841dbe69d0a96e9f34cf71ccee2))
+
 # [1.3.0](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/compare/v1.2.0...v1.3.0) (2026-03-11)
 
 
