@@ -205,6 +205,31 @@ const rule: Rule.RuleModule = {
       cssPath = path.normalize(options.cssPath);
     } else {
       cssPath = path.normalize(path.resolve(cwd, options.cssPath));
+
+      // In monorepos, `context.cwd` may point to the repository root rather
+      // than the project directory, causing a relative `cssPath` to resolve to
+      // the wrong location.  When that happens, walk up from the file being
+      // linted until we find a directory that contains the CSS file.
+      if (!fs.existsSync(cssPath)) {
+        const filename =
+          context.filename ?? (context as any).getFilename?.();
+        if (filename) {
+          let dir = path.dirname(filename);
+          const root = path.parse(dir).root;
+          while (dir !== root) {
+            const candidate = path.normalize(
+              path.resolve(dir, options.cssPath),
+            );
+            if (fs.existsSync(candidate)) {
+              cssPath = candidate;
+              break;
+            }
+            const parent = path.dirname(dir);
+            if (parent === dir) break;
+            dir = parent;
+          }
+        }
+      }
     }
 
     const rootFontSize = options.rootFontSize ?? 16;
