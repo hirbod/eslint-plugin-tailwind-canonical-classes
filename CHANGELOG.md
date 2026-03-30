@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/compare/v1.3.1...v1.3.2) (2026-03-30)
+
+
+### Bug Fixes
+
+* resolve relative cssPath from linted file in monorepos ([#8](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/issues/8)) ([1d48e3d](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/commit/1d48e3d59e8b9adc28421c6f0c6c0c05ff991b53))
+
 ## [1.3.1](https://github.com/MaisonnatM/eslint-plugin-tailwind-canonical-classes/compare/v1.3.0...v1.3.1) (2026-03-11)
 
 
